@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
 import { Exclude } from 'class-transformer'
+import { Routine } from './routine.entity'
 
 @Entity()
 export class User {
@@ -19,4 +20,7 @@ export class User {
   @Column()
   @Exclude()
   password: string
+
+  @OneToMany(() => Routine, routine => routine.user)
+  routines: Routine[]
 }

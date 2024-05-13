@@ -6,6 +6,8 @@ import ConfigModule from './config'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { UserModule } from './routes/user/user.module'
 import { AuthModule } from './auth/auth.module'
+import { RoutineController } from './routes/routine/routine.controller'
+import { RoutineModule } from './routes/routine/routine.module'
 
 @Module({
   imports: [
@@ -22,7 +24,8 @@ import { AuthModule } from './auth/auth.module'
       logging: true
     }),
     UserModule,
-    AuthModule
+    AuthModule,
+    RoutineModule
   ],
   controllers: [AppController],
   providers: [AppService]
