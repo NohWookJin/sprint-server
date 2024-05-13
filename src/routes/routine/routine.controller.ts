@@ -7,7 +7,6 @@ import {
   ParseIntPipe,
   Patch,
   Post,
-  Put,
   UnauthorizedException,
   UseGuards
 } from '@nestjs/common'

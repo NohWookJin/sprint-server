@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn } from 'typeorm'
 import { Routine } from './routine.entity'
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -12,8 +12,11 @@ export class Blog {
   title: string
 
   @ApiProperty({ description: '블로그 내용' })
-  @Column()
+  @Column('text')
   content: string
+
+  @CreateDateColumn()
+  date: Date
 
   @ManyToOne(() => Routine, routine => routine.blogs)
   routine: Routine
