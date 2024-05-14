@@ -1,4 +1,15 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  NotFoundException,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query
+} from '@nestjs/common'
 import { TodoService } from './todo.service'
 
 @Controller('routines/:routineId/todos')
@@ -16,8 +27,12 @@ export class TodoController {
   }
 
   @Get('today')
-  getTodayTodos() {
-    return this.todoService.findTodayTodos()
+  async getTodayTodos(@Param('routineId', ParseIntPipe) routineId: number) {
+    const todayBlogs = await this.todoService.findTodayTodosByRoutine(routineId)
+    if (todayBlogs === null) {
+      throw new NotFoundException(`No Todos found for today in routine ID ${routineId}`)
+    }
+    return todayBlogs
   }
 
   @Post()
@@ -32,6 +47,11 @@ export class TodoController {
     @Body('completed') completed: boolean
   ) {
     return this.todoService.updateTodo(todoId, content, completed)
+  }
+
+  @Patch('/:todoId/completion')
+  toggleTodoCompletion(@Param('todoId', ParseIntPipe) todoId: number, @Body('completed') completed: boolean) {
+    return this.todoService.toggleTodoCompletion(todoId, completed)
   }
 
   @Delete('/:todoId')

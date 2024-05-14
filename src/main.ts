@@ -10,10 +10,17 @@ async function bootstrap() {
   const todoService = app.get(TodoService)
   const blogService = app.get(BlogService)
 
-  cron.schedule('0 0 * * *', () => {
-    todoService.movePastTodos()
-    // blogService.categorizePastBlogs()
-  })
+  cron.schedule(
+    '0 0 * * *',
+    () => {
+      todoService.movePastTodos()
+      blogService.movePastTodos()
+    },
+    {
+      scheduled: true,
+      timezone: 'Asia/Seoul'
+    }
+  )
 
   const config = new DocumentBuilder()
     .setTitle('Sprint')

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository, Between, LessThan, MoreThanOrEqual } from 'typeorm'
+import { Repository, Between, LessThan } from 'typeorm'
 import { Blog } from 'src/entity/blog.entity'
 import * as moment from 'moment-timezone'
 
@@ -16,7 +16,7 @@ export class BlogService {
     const todayStart = moment().tz('Asia/Seoul').startOf('day').toDate()
     const todayEnd = moment().tz('Asia/Seoul').endOf('day').toDate()
 
-    const blogs = await this.blogRepository.find({
+    const todayBlogs = await this.blogRepository.find({
       where: {
         routine: { id: routineId },
         date: Between(todayStart, todayEnd)
@@ -32,7 +32,7 @@ export class BlogService {
     })
 
     return {
-      today: blogs,
+      today: todayBlogs,
       past: this.groupBlogsByDate(pastBlogs)
     }
   }
@@ -40,7 +40,7 @@ export class BlogService {
   // 날짜별 블로그 그룹화
   private groupBlogsByDate(blogs: Blog[]): { [key: string]: Blog[] } {
     return blogs.reduce((acc, blog) => {
-      const dateKey = moment(blog.date).format('YYYY-MM-DD')
+      const dateKey = moment(blog.date).tz('Asia/Seoul').format('YYYY-MM-DD')
       if (!acc[dateKey]) {
         acc[dateKey] = []
       }
@@ -49,29 +49,34 @@ export class BlogService {
     }, {})
   }
 
-  // 오늘의 블로그 조회
-  async findTodayBlogs(): Promise<Blog[]> {
-    const startToday = moment().startOf('day').toDate()
+  // 특정 루틴의 오늘의 블로그 조회 및 빈 배열 처리
+  async findTodayBlogsByRoutine(routineId: number): Promise<Blog[] | null> {
+    const todayStart = moment().tz('Asia/Seoul').startOf('day').toDate()
+    const todayEnd = moment().tz('Asia/Seoul').endOf('day').toDate()
 
-    return this.blogRepository.find({
+    const todayBlogs = await this.blogRepository.find({
       where: {
-        date: MoreThanOrEqual(startToday)
+        routine: { id: routineId },
+        date: Between(todayStart, todayEnd)
       },
       order: {
         date: 'ASC'
       }
     })
+
+    return todayBlogs
   }
 
   // 과거 블로그 글 조회(7일 단위 페이지네이션)
-  async findPastBlogs(page: number): Promise<Blog[]> {
+  async findPastBlogs(page: number, routineId: number): Promise<Blog[]> {
     const pageSize = 7
     const skipAmount = (page - 1) * pageSize
 
-    const today = moment().startOf('day').toDate()
+    const today = moment().tz('Asia/Seoul').startOf('day').toDate()
 
     return this.blogRepository.find({
       where: {
+        routine: { id: routineId },
         date: LessThan(today)
       },
       order: {
@@ -82,18 +87,25 @@ export class BlogService {
     })
   }
 
-  // 블로그 상세 조회
-  async findBlogById(blogId: number): Promise<Blog> {
+  // 블로그 상세 조회 (today와 past를 모두 반환)
+  async findBlogById(blogId: number): Promise<{ blog: Blog; today: Blog[] | null; past: { [key: string]: Blog[] } }> {
     const blog = await this.blogRepository.findOne({
       where: { id: blogId },
-      select: ['id', 'title', 'content', 'date']
+      relations: ['routine']
     })
 
     if (!blog) {
       throw new NotFoundException(`Blog with ID ${blogId} not found`)
     }
 
-    return blog
+    const routineId = blog.routine.id
+    const { today, past } = await this.findBlogsByRoutine(routineId)
+
+    return {
+      blog,
+      today,
+      past
+    }
   }
 
   // 블로그 생성
@@ -102,6 +114,7 @@ export class BlogService {
     blog.routine = { id: routineId } as any
     blog.title = title
     blog.content = content
+    blog.date = moment().tz('Asia/Seoul').toDate()
     return await this.blogRepository.save(blog)
   }
 
@@ -137,7 +150,7 @@ export class BlogService {
   }
 
   // 자정 blog => past로 이동
-  async movePastBlogs() {
+  async movePastTodos() {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
   }

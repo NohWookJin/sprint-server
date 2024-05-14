@@ -8,10 +8,9 @@ import { UserModule } from './routes/user/user.module'
 import { AuthModule } from './auth/auth.module'
 import { RoutineModule } from './routes/routine/routine.module'
 import { TodoModule } from './routes/todo/todo.module'
-import { BlogController } from './routes/blog/blog.controller'
 import { BlogModule } from './routes/blog/blog.module'
-import { AnalysisController } from './routes/analysis/analysis.controller'
 import { AnalysisModule } from './routes/analysis/analysis.module'
+import { DailyRoutineModule } from './routes/daily-routine/daily-routine.module'
 
 @Module({
   imports: [
@@ -32,7 +31,8 @@ import { AnalysisModule } from './routes/analysis/analysis.module'
     RoutineModule,
     TodoModule,
     BlogModule,
-    AnalysisModule
+    AnalysisModule,
+    DailyRoutineModule
   ],
   controllers: [AppController],
   providers: [AppService]

@@ -37,7 +37,29 @@ export class TodoService {
     }
   }
 
-  // 오늘의 블로그 조회
+  // 특정 루틴의 오늘의 블로그 조회 및 빈 배열 처리
+  async findTodayTodosByRoutine(routineId: number) {
+    const todayStart = moment().tz('Asia/Seoul').startOf('day').toDate()
+    const todayEnd = moment().tz('Asia/Seoul').endOf('day').toDate()
+
+    const todayTodos = await this.todoRepository.find({
+      where: {
+        routine: { id: routineId },
+        date: Between(todayStart, todayEnd)
+      },
+      order: {
+        date: 'ASC'
+      }
+    })
+
+    if (todayTodos.length === 0) {
+      return null
+    }
+
+    return todayTodos
+  }
+
+  // 오늘의 투두 조회
   async findTodayTodos() {
     const startToday = moment().startOf('day').toDate()
 
@@ -101,6 +123,19 @@ export class TodoService {
     todo.content = content
     todo.completed = completed
     return await this.todoRepository.save(todo)
+  }
+
+  // 투두 완료 및 완료 취소
+  async toggleTodoCompletion(todoId: number, completed: boolean) {
+    const todo = await this.todoRepository.findOne({
+      where: { id: todoId },
+      relations: ['routine']
+    })
+
+    todo.completed = completed
+    await this.todoRepository.save(todo)
+
+    return todo
   }
 
   // 투두 삭제
