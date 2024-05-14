@@ -10,7 +10,6 @@ import { RoutineModule } from './routes/routine/routine.module'
 import { TodoModule } from './routes/todo/todo.module'
 import { BlogModule } from './routes/blog/blog.module'
 import { AnalysisModule } from './routes/analysis/analysis.module'
-import { DailyRoutineModule } from './routes/daily-routine/daily-routine.module'
 
 @Module({
   imports: [
@@ -31,8 +30,7 @@ import { DailyRoutineModule } from './routes/daily-routine/daily-routine.module'
     RoutineModule,
     TodoModule,
     BlogModule,
-    AnalysisModule,
-    DailyRoutineModule
+    AnalysisModule
   ],
   controllers: [AppController],
   providers: [AppService]
