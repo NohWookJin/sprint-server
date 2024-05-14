@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository, Between, LessThan } from 'typeorm'
+import { Repository, Between, LessThan, MoreThanOrEqual } from 'typeorm'
 import { Blog } from 'src/entity/blog.entity'
 import * as moment from 'moment-timezone'
 
@@ -11,7 +11,7 @@ export class BlogService {
     private blogRepository: Repository<Blog>
   ) {}
 
-  // 전체 블로그
+  // 전체 블로그 조회
   async findBlogsByRoutine(routineId: number) {
     const todayStart = moment().tz('Asia/Seoul').startOf('day').toDate()
     const todayEnd = moment().tz('Asia/Seoul').endOf('day').toDate()
@@ -47,6 +47,53 @@ export class BlogService {
       acc[dateKey].push(blog)
       return acc
     }, {})
+  }
+
+  // 오늘의 블로그 조회
+  async findTodayBlogs(): Promise<Blog[]> {
+    const startToday = moment().startOf('day').toDate()
+
+    return this.blogRepository.find({
+      where: {
+        date: MoreThanOrEqual(startToday)
+      },
+      order: {
+        date: 'ASC'
+      }
+    })
+  }
+
+  // 과거 블로그 글 조회(7일 단위 페이지네이션)
+  async findPastBlogs(page: number): Promise<Blog[]> {
+    const pageSize = 7
+    const skipAmount = (page - 1) * pageSize
+
+    const today = moment().startOf('day').toDate()
+
+    return this.blogRepository.find({
+      where: {
+        date: LessThan(today)
+      },
+      order: {
+        date: 'DESC'
+      },
+      take: pageSize,
+      skip: skipAmount
+    })
+  }
+
+  // 블로그 상세 조회
+  async findBlogById(blogId: number): Promise<Blog> {
+    const blog = await this.blogRepository.findOne({
+      where: { id: blogId },
+      select: ['id', 'title', 'content', 'date']
+    })
+
+    if (!blog) {
+      throw new NotFoundException(`Blog with ID ${blogId} not found`)
+    }
+
+    return blog
   }
 
   // 블로그 생성

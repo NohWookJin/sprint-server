@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository, Between, LessThan } from 'typeorm'
+import { Repository, Between, LessThan, MoreThanOrEqual } from 'typeorm'
 import { Todo } from 'src/entity/todo.entity'
 import * as moment from 'moment-timezone'
 
@@ -11,7 +11,7 @@ export class TodoService {
     private todoRepository: Repository<Todo>
   ) {}
 
-  // 전체 투두
+  // 전체 투두 조회
   async findTodosByRoutine(routineId: number) {
     const todayStart = moment().tz('Asia/Seoul').startOf('day').toDate()
     const todayEnd = moment().tz('Asia/Seoul').endOf('day').toDate()
@@ -35,6 +35,39 @@ export class TodoService {
       today: todos,
       past: this.groupTodosByDate(pastTodos)
     }
+  }
+
+  // 오늘의 블로그 조회
+  async findTodayTodos() {
+    const startToday = moment().startOf('day').toDate()
+
+    return this.todoRepository.find({
+      where: {
+        date: MoreThanOrEqual(startToday)
+      },
+      order: {
+        date: 'ASC'
+      }
+    })
+  }
+
+  // 과거 투두 글 조회(7일 단위 페이지네이션)
+  async findPastTodos(page: number) {
+    const pageSize = 7
+    const skipAmount = (page - 1) * pageSize
+
+    const today = moment().startOf('day').toDate()
+
+    return this.todoRepository.find({
+      where: {
+        date: LessThan(today)
+      },
+      order: {
+        date: 'DESC'
+      },
+      take: pageSize,
+      skip: skipAmount
+    })
   }
 
   // 날짜별 투두 그룹화

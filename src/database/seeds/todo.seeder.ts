@@ -34,7 +34,32 @@ export default class BlogSeeder implements Seeder {
         routine: { id: 20 },
         date: new Date('2024-03-22')
       },
-      { title: '더욱 옛날 블로그입니다.', content: 'Learn Docker', routine: { id: 20 }, date: new Date('2024-03-21') }
+      {
+        title: '특별한 옛날 블로그입니다.',
+        content: 'Learn Docker',
+        routine: { id: 20 },
+        date: new Date('2024-03-21')
+      },
+      {
+        title: '멋있는 옛날 블로그입니다.',
+        content: 'Learn Docker',
+        routine: { id: 20 },
+        date: new Date('2024-03-20')
+      },
+      { title: '멋진 옛날 블로그입니다.', content: 'Learn Docker', routine: { id: 20 }, date: new Date('2024-03-19') },
+      { title: '더운 옛날 블로그입니다.', content: 'Learn Docker', routine: { id: 20 }, date: new Date('2024-03-18') },
+      {
+        title: '시원한 옛날 블로그입니다.',
+        content: 'Learn Docker',
+        routine: { id: 20 },
+        date: new Date('2024-03-17')
+      },
+      {
+        title: '그저 그런 옛날 블로그입니다.',
+        content: 'Learn Docker',
+        routine: { id: 20 },
+        date: new Date('2024-03-12')
+      }
     ])
   }
 }
