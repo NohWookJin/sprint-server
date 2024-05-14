@@ -19,6 +19,10 @@ export class Analysis {
   @Column()
   continuity: number
 
+  @ApiProperty({ description: '루틴 일일 카운트 배열' })
+  @Column('text')
+  dailyCounts: string
+
   @OneToOne(() => Routine, routine => routine.analysis)
   @JoinColumn()
   routine: Routine

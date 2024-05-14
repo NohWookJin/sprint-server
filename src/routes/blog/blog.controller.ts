@@ -11,13 +11,15 @@ export class BlogController {
   }
 
   @Get('past')
-  getPastBlogs(@Query('page', ParseIntPipe) page: number) {
-    return this.blogService.findPastBlogs(page)
+  getPastBlogs(@Query('page', ParseIntPipe) page: number, @Param('routineId', ParseIntPipe) routineId: number) {
+    return this.blogService.findPastBlogs(page, routineId)
   }
 
   @Get('today')
-  getTodayBlogs() {
-    return this.blogService.findTodayBlogs()
+  async getTodayBlogs(@Param('routineId', ParseIntPipe) routineId: number) {
+    const todayBlogs = await this.blogService.findTodayBlogsByRoutine(routineId)
+
+    return todayBlogs
   }
 
   @Get(':blogId')

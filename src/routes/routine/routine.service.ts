@@ -3,13 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Routine } from 'src/entity/routine.entity'
 import { Repository } from 'typeorm'
 import { CreateRoutineDto } from './dto/create-routine.dto'
-import { User } from 'src/entity/user.entity'
 
 @Injectable()
 export class RoutineService {
   constructor(
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
     @InjectRepository(Routine)
     private routineRepository: Repository<Routine>
   ) {}

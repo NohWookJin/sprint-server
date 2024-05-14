@@ -3,8 +3,6 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGene
 import { User } from './user.entity'
 import { Todo } from './todo.entity'
 import { Blog } from './blog.entity'
-import { Past } from './past.entity'
-import { Category } from './category.entity'
 import { Analysis } from './analysis.entity'
 
 @Entity()
@@ -35,9 +33,6 @@ export class Routine {
   @Column()
   colorSelection: string
 
-  @OneToMany(() => Past, past => past.routine)
-  pasts: Past[]
-
   @OneToMany(() => Todo, todo => todo.routine)
   todos: Todo[]
 
@@ -46,9 +41,6 @@ export class Routine {
 
   @OneToOne(() => Analysis, analysis => analysis.routine)
   analysis: Analysis
-
-  @ManyToOne(() => Category, category => category.routines)
-  category: Category[]
 
   @ManyToOne(() => User, user => user.routines)
   @JoinColumn({ name: 'userId' })
