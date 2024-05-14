@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common'
 import { TodoService } from './todo.service'
 
 @Controller('routines/:routineId/todos')
@@ -8,6 +8,16 @@ export class TodoController {
   @Get()
   getRoutineTodos(@Param('routineId', ParseIntPipe) routineId: number) {
     return this.todoService.findTodosByRoutine(routineId)
+  }
+
+  @Get('past')
+  getPastTodos(@Query('page', ParseIntPipe) page: number) {
+    return this.todoService.findPastTodos(page)
+  }
+
+  @Get('today')
+  getTodayTodos() {
+    return this.todoService.findTodayTodos()
   }
 
   @Post()

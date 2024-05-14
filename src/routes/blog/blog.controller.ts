@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Param, ParseIntPipe, Get, Delete, Patch } from '@nestjs/common'
+import { Controller, Post, Body, Param, ParseIntPipe, Get, Delete, Patch, Query } from '@nestjs/common'
 import { BlogService } from './blog.service'
 
 @Controller('routines/:routineId/blogs')
@@ -8,6 +8,21 @@ export class BlogController {
   @Get()
   getRoutineBlogs(@Param('routineId', ParseIntPipe) routineId: number) {
     return this.blogService.findBlogsByRoutine(routineId)
+  }
+
+  @Get('past')
+  getPastBlogs(@Query('page', ParseIntPipe) page: number) {
+    return this.blogService.findPastBlogs(page)
+  }
+
+  @Get('today')
+  getTodayBlogs() {
+    return this.blogService.findTodayBlogs()
+  }
+
+  @Get(':blogId')
+  getBlogById(@Param('blogId', ParseIntPipe) blogId: number) {
+    return this.blogService.findBlogById(blogId)
   }
 
   @Post()
@@ -36,7 +51,7 @@ export class BlogController {
 
   // seed용(과거)
   @Post('create-past')
-  createPastTodo(
+  createPastBlog(
     @Body('routineId') routineId: number,
     @Body('title') title: string,
     @Body('content') content: string,
