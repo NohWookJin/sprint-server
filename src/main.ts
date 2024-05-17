@@ -6,7 +6,14 @@ import { BlogService } from './routes/blog/blog.service'
 import * as cron from 'node-cron'
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule)
+  const app = await NestFactory.create(AppModule, {
+    cors: {
+      origin: ['http://localhost:5173', 'https://www.sprints.co.kr'],
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization']
+    }
+  })
+
   const todoService = app.get(TodoService)
   const blogService = app.get(BlogService)
 
