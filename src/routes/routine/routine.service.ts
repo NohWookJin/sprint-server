@@ -78,7 +78,10 @@ export class RoutineService {
       await this.blogRepository.remove(routine.blogs)
     }
 
-    await this.analysisRepository.remove(routine.analysis)
+    if (routine.analysis) {
+      await this.analysisRepository.remove(routine.analysis)
+    }
+
     await this.routineRepository.remove(routine)
   }
 }
