@@ -110,7 +110,7 @@ export class TodoService {
     todo.routine = { id: routineId } as any
     todo.content = content
     todo.completed = false
-    todo.date = new Date()
+    todo.date = moment().tz('Asia/Seoul').toDate()
     return await this.todoRepository.save(todo)
   }
 
