@@ -119,7 +119,7 @@ export class BlogService {
     }
   })
 
-  private upload = multer({ storage: this.storage })
+  private upload = multer({ storage: this.storage, limits: { fieldSize: 25 * 1024 * 1024 } })
 
   async uploadImage(req: Request, res: Response, next: NextFunction) {
     this.upload.single('image')(req, res, (err: any) => {
