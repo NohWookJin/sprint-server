@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Repository, Between, LessThan } from 'typeorm'
 import { Blog } from 'src/entity/blog.entity'
 import * as moment from 'moment-timezone'
+import * as multer from 'multer'
+import { Request, Response, NextFunction } from 'express'
 
 @Injectable()
 export class BlogService {
@@ -107,19 +109,44 @@ export class BlogService {
       past
     }
   }
+  private storage = multer.diskStorage({
+    destination: (req: Request, file, cb: (error: Error | null, destination: string) => void) => {
+      cb(null, 'uploads/')
+    },
+    filename: (req: Request, file, cb: (error: Error | null, filename: string) => void) => {
+      const filename = `${Date.now()}-${file.originalname}`
+      cb(null, filename)
+    }
+  })
+
+  private upload = multer({ storage: this.storage })
+
+  async uploadImage(req: Request, res: Response, next: NextFunction) {
+    this.upload.single('image')(req, res, (err: any) => {
+      if (err instanceof multer.MulterError) {
+        return res.status(400).json({ message: 'Multer error' })
+      } else if (err) {
+        return res.status(500).json({ message: 'Internal server error' })
+      }
+      next()
+    })
+  }
 
   // 블로그 생성
-  async createBlog(routineId: number, title: string, content: string) {
+  async createBlog(routineId: number, title: string, content: string, image?: Express.Multer.File) {
     const blog = new Blog()
     blog.routine = { id: routineId } as any
     blog.title = title
     blog.content = content
     blog.date = moment().tz('Asia/Seoul').toDate()
+    if (image) {
+      blog.imagePath = image.path
+    }
     return await this.blogRepository.save(blog)
   }
 
   // 블로그 업데이트(수정)
-  async updateBlog(blogId: number, title: string, content: string): Promise<Blog> {
+  async updateBlog(blogId: number, title: string, content: string, image?: Express.Multer.File): Promise<Blog> {
     const blog = await this.blogRepository.findOneBy({ id: blogId })
     if (!blog) {
       throw new NotFoundException()
@@ -127,6 +154,9 @@ export class BlogService {
 
     blog.title = title
     blog.content = content
+    if (image) {
+      blog.imagePath = image.path
+    }
     return await this.blogRepository.save(blog)
   }
 
