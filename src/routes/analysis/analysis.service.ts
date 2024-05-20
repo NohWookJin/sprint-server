@@ -18,7 +18,10 @@ export class AnalysisService {
   }
 
   async getAllRoutineAnalysis() {
-    const routines = await this.routineRepository.find({ relations: ['todos', 'blogs'] })
+    const routines = await this.routineRepository.find({
+      where: { isDeleted: false },
+      relations: ['todos', 'blogs']
+    })
 
     const analyses = []
     for (const routine of routines) {
@@ -34,7 +37,7 @@ export class AnalysisService {
 
   async getRoutineAnalysis(routineId: number) {
     const routine = await this.routineRepository.findOne({
-      where: { id: routineId },
+      where: { id: routineId, isDeleted: false },
       relations: ['todos', 'blogs']
     })
 
@@ -126,8 +129,8 @@ export class AnalysisService {
 
       if (analysis) {
         dailyCounts = JSON.parse(analysis.dailyCounts)
-        dailyCounts.unshift(0)
-        dailyCounts.pop()
+        const daysSinceStart = moment().startOf('day').diff(moment(routine.date).startOf('day'), 'days')
+        dailyCounts = dailyCounts.slice(0, daysSinceStart + 1)
         analysis.dailyCounts = JSON.stringify(dailyCounts)
         await this.analysisRepository.save(analysis)
       } else {

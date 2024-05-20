@@ -109,6 +109,7 @@ export class BlogService {
       past
     }
   }
+
   private storage = multer.diskStorage({
     destination: (req: Request, file, cb: (error: Error | null, destination: string) => void) => {
       cb(null, 'uploads/')

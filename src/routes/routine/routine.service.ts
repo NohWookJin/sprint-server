@@ -82,6 +82,8 @@ export class RoutineService {
       await this.analysisRepository.remove(routine.analysis)
     }
 
+    routine.isDeleted = true
+
     await this.routineRepository.remove(routine)
   }
 }

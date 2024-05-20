@@ -33,6 +33,9 @@ export class Routine {
   @Column()
   colorSelection: string
 
+  @Column({ default: false })
+  isDeleted: boolean
+
   @OneToMany(() => Todo, todo => todo.routine)
   todos: Todo[]
 
