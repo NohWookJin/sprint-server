@@ -122,8 +122,7 @@ export class BlogService {
   private upload = multer({
     storage: this.storage,
     limits: {
-      fileSize: 25 * 1024 * 1024,
-      fieldSize: 25 * 1024 * 1024
+      fieldSize: 8 * 1024 * 1024
     }
   })
 
