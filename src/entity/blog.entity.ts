@@ -15,6 +15,10 @@ export class Blog {
   @Column('text')
   content: string
 
+  @ApiProperty({ description: '이미지 경로' })
+  @Column({ nullable: true })
+  imagePath: string
+
   @CreateDateColumn()
   date: Date
 
