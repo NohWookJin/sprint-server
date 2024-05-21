@@ -4,12 +4,15 @@ import {
   Controller,
   Get,
   Post,
+  UseGuards,
   UseInterceptors,
   ValidationPipe
 } from '@nestjs/common'
 import { UserService } from './user.service'
 import { CreateUserDto } from './dto/create-user.dto'
 import { LoginUserDto } from './dto/login-user.dto'
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard'
+import { UserInfo } from 'src/decorators/user-info-decorator'
 
 @Controller('user')
 export class UserController {
@@ -25,9 +28,16 @@ export class UserController {
     return this.userService.login(data)
   }
 
-  @Get()
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
-  getUsers() {
-    return this.userService.getUser()
+  getUser(@UserInfo() userInfo) {
+    return this.userService.getUser(userInfo.id)
+  }
+
+  @Get('info')
+  @UseGuards(JwtAuthGuard)
+  async getUserWithBadgesAndLevel(@UserInfo() userInfo) {
+    return this.userService.getUserWithBadgesAndLevel(userInfo.id)
   }
 }

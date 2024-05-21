@@ -11,6 +11,7 @@ import { Blog } from 'src/entity/blog.entity'
 @Module({
   imports: [TypeOrmModule.forFeature([Routine, User, Todo, Blog, Analysis])],
   controllers: [RoutineController],
-  providers: [RoutineService]
+  providers: [RoutineService],
+  exports: [TypeOrmModule]
 })
 export class RoutineModule {}
