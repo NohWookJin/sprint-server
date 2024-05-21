@@ -17,9 +17,9 @@ export class AnalysisService {
     this.scheduleRoutineUpdates()
   }
 
-  async getAllRoutineAnalysis() {
+  async getAllRoutineAnalysis(userId: number) {
     const routines = await this.routineRepository.find({
-      where: { isDeleted: false },
+      where: { userId: userId, isDeleted: false },
       relations: ['todos', 'blogs']
     })
 
@@ -35,9 +35,9 @@ export class AnalysisService {
     return analyses
   }
 
-  async getRoutineAnalysis(routineId: number) {
+  async getRoutineAnalysis(userId: number, routineId: number) {
     const routine = await this.routineRepository.findOne({
-      where: { id: routineId, isDeleted: false },
+      where: { userId: userId, id: routineId, isDeleted: false },
       relations: ['todos', 'blogs']
     })
 
