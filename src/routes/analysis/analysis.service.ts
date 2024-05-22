@@ -50,8 +50,8 @@ export class AnalysisService {
 
   private async calculateAnalysisData(routine: Routine, dailyCounts: number[] = null) {
     const logs = routine.routineType === 'blog' ? routine.blogs : routine.todos
-    const startDate = moment(routine.date).startOf('day')
-    const currentDate = moment().startOf('day')
+    const startDate = moment(routine.date).utc().startOf('day')
+    const currentDate = moment().utc().startOf('day')
     const daysSinceStart = currentDate.diff(startDate, 'days')
 
     if (!dailyCounts) {
@@ -63,7 +63,7 @@ export class AnalysisService {
     }
 
     logs.forEach(log => {
-      const logDate = moment(log.date).startOf('day')
+      const logDate = moment(log.date).utc().startOf('day')
       const dayIndex = logDate.diff(startDate, 'days')
       if (dayIndex >= 0 && dayIndex < 365) {
         if (routine.routineType === 'todo' && log.completed) {
@@ -129,7 +129,7 @@ export class AnalysisService {
 
       if (analysis) {
         dailyCounts = JSON.parse(analysis.dailyCounts)
-        const daysSinceStart = moment().startOf('day').diff(moment(routine.date).startOf('day'), 'days')
+        const daysSinceStart = moment().utc().startOf('day').diff(moment(routine.date).startOf('day'), 'days')
         dailyCounts = dailyCounts.slice(0, daysSinceStart + 1)
         analysis.dailyCounts = JSON.stringify(dailyCounts)
         await this.analysisRepository.save(analysis)
@@ -139,7 +139,7 @@ export class AnalysisService {
           continuity: 0,
           average: 0,
           dailyCounts: JSON.stringify(dailyCounts),
-          startWith: moment(routine.date).startOf('day').toDate()
+          startWith: moment(routine.date).utc().startOf('day').toDate()
         }
         await this.analysisRepository.save(analysisData)
       }
@@ -165,8 +165,7 @@ export class AnalysisService {
         this.updateAllRoutines()
       },
       {
-        scheduled: true,
-        timezone: 'Asia/Seoul'
+        scheduled: true
       }
     )
   }

@@ -13,8 +13,8 @@ export class TodoService {
 
   // 전체 투두 조회
   async findTodosByRoutine(routineId: number) {
-    const todayStart = moment().tz('Asia/Seoul').startOf('day').toDate()
-    const todayEnd = moment().tz('Asia/Seoul').endOf('day').toDate()
+    const todayStart = moment().utc().startOf('day').toDate()
+    const todayEnd = moment().utc().endOf('day').toDate()
 
     const todos = await this.todoRepository.find({
       where: {
@@ -39,8 +39,8 @@ export class TodoService {
 
   // 특정 루틴의 오늘의 블로그 조회 및 빈 배열 처리
   async findTodayTodosByRoutine(routineId: number) {
-    const todayStart = moment().tz('Asia/Seoul').startOf('day').toDate()
-    const todayEnd = moment().tz('Asia/Seoul').endOf('day').toDate()
+    const todayStart = moment().utc().startOf('day').toDate()
+    const todayEnd = moment().utc().endOf('day').toDate()
 
     const todayTodos = await this.todoRepository.find({
       where: {
@@ -78,7 +78,7 @@ export class TodoService {
     const pageSize = 7
     const skipAmount = (page - 1) * pageSize
 
-    const today = moment().startOf('day').toDate()
+    const today = moment().utc().startOf('day').toDate()
 
     return this.todoRepository.find({
       where: {
@@ -110,7 +110,7 @@ export class TodoService {
     todo.routine = { id: routineId } as any
     todo.content = content
     todo.completed = false
-    todo.date = moment().tz('Asia/Seoul').toDate()
+    todo.date = moment().utc().toDate()
     return await this.todoRepository.save(todo)
   }
 
