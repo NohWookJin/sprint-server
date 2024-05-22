@@ -160,6 +160,9 @@ export class UserService {
   }
 
   calculateLevel(badgeCount: number) {
+    if (badgeCount <= 3) {
+      return 'lv1'
+    }
     if (badgeCount <= 4) {
       return 'lv2'
     }
@@ -169,6 +172,5 @@ export class UserService {
     if (badgeCount <= 8) {
       return 'lv4'
     }
-    return 'Lv. 1'
   }
 }
