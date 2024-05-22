@@ -13,8 +13,8 @@ export class TodoService {
 
   // 전체 투두 조회
   async findTodosByRoutine(routineId: number) {
-    const todayStart = moment().utc().startOf('day').toDate()
-    const todayEnd = moment().utc().endOf('day').toDate()
+    const todayStart = moment.tz('Asia/Seoul').startOf('day').utc().toDate()
+    const todayEnd = moment.tz('Asia/Seoul').endOf('day').utc().toDate()
 
     const todos = await this.todoRepository.find({
       where: {
@@ -37,10 +37,10 @@ export class TodoService {
     }
   }
 
-  // 특정 루틴의 오늘의 블로그 조회 및 빈 배열 처리
+  // 특정 루틴의 오늘의 투두 조회 및 빈 배열 처리
   async findTodayTodosByRoutine(routineId: number) {
-    const todayStart = moment().utc().startOf('day').toDate()
-    const todayEnd = moment().utc().endOf('day').toDate()
+    const todayStart = moment.tz('Asia/Seoul').startOf('day').utc().toDate()
+    const todayEnd = moment.tz('Asia/Seoul').endOf('day').utc().toDate()
 
     const todayTodos = await this.todoRepository.find({
       where: {
@@ -61,7 +61,7 @@ export class TodoService {
 
   // 오늘의 투두 조회
   async findTodayTodos() {
-    const startToday = moment().startOf('day').toDate()
+    const startToday = moment.tz('Asia/Seoul').startOf('day').utc().toDate()
 
     return this.todoRepository.find({
       where: {
@@ -78,7 +78,7 @@ export class TodoService {
     const pageSize = 7
     const skipAmount = (page - 1) * pageSize
 
-    const today = moment().utc().startOf('day').toDate()
+    const today = moment.tz('Asia/Seoul').startOf('day').utc().toDate()
 
     return this.todoRepository.find({
       where: {
@@ -110,7 +110,7 @@ export class TodoService {
     todo.routine = { id: routineId } as any
     todo.content = content
     todo.completed = false
-    todo.date = moment().utc().toDate()
+    todo.date = moment.tz('Asia/Seoul').utc().toDate()
     return await this.todoRepository.save(todo)
   }
 
@@ -153,13 +153,13 @@ export class TodoService {
     todo.routine = { id: routineId } as any
     todo.content = content
     todo.completed = completed
-    todo.date = new Date(date)
+    todo.date = moment(date).utc().toDate()
     return await this.todoRepository.save(todo)
   }
 
   // 자정 todo => past로 이동
   async movePastTodos() {
-    const today = new Date()
+    const today = moment.tz('Asia/Seoul').startOf('day').utc().toDate()
     today.setHours(0, 0, 0, 0)
   }
 }
