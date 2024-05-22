@@ -25,8 +25,7 @@ async function bootstrap() {
       blogService.movePastTodos()
     },
     {
-      scheduled: true,
-      timezone: 'Asia/Seoul'
+      scheduled: true
     }
   )
 

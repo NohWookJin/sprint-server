@@ -101,74 +101,74 @@ export class UserService {
       throw new NotFoundException(`User with ID ${userId} not found`)
     }
 
-    const badges = []
-    const currentDate = moment().startOf('day')
+    const badges = new Set<string>()
+    const currentDate = moment().utc().startOf('day')
     const createdAt = moment(user.createdAt).startOf('day')
     const daysSinceCreation = currentDate.diff(createdAt, 'days')
 
     // 가입일 뱃지
     if (daysSinceCreation >= 0) {
-      badges.push('WELCOME')
+      badges.add('WELCOME')
     }
     if (daysSinceCreation >= 15) {
-      badges.push('VIP')
+      badges.add('VIP')
     }
 
     // 루틴 개수 뱃지
     const routineCount = user.routines.length
     if (routineCount >= 1) {
-      badges.push('HUNGER')
+      badges.add('HUNGER')
     }
     if (routineCount >= 3) {
-      badges.push('SATIETY')
+      badges.add('SATIETY')
     }
     if (routineCount >= 5) {
-      badges.push('FULLNESS')
+      badges.add('FULLNESS')
     }
 
     // continuity 뱃지
     const analyses = await this.analysisRepository.find({ where: { routine: { userId } } })
     const continuityBadges = this.calculateContinuityBadges(analyses)
-    badges.push(...continuityBadges)
+    continuityBadges.forEach(badge => badges.add(badge))
 
-    user.badges = badges
+    user.badges = Array.from(badges)
 
     // 레벨 계산
-    const level = this.calculateLevel(badges.length)
+    const level = this.calculateLevel(user.badges.length)
     user.level = level
 
     await this.userRepository.save(user)
   }
 
   calculateContinuityBadges(analyses: Analysis[]) {
-    const badges = []
+    const badges = new Set<string>()
     analyses.forEach(analysis => {
       if (analysis.continuity >= 1) {
-        badges.push('BEGINNER')
+        badges.add('BEGINNER')
       }
       if (analysis.continuity >= 5) {
-        badges.push('AMATEUR')
+        badges.add('AMATEUR')
       }
       if (analysis.continuity >= 10) {
-        badges.push('PRO')
+        badges.add('PRO')
       }
       if (analysis.continuity >= 30) {
-        badges.push('LEGEND')
+        badges.add('LEGEND')
       }
     })
-    return badges
+    return Array.from(badges)
   }
 
   calculateLevel(badgeCount: number) {
-    if (badgeCount <= 2) {
-      return 'lv1'
-    }
-    if (badgeCount <= 5) {
+    if (badgeCount <= 4) {
       return 'lv2'
     }
-    if (badgeCount <= 8) {
+    if (badgeCount <= 6) {
       return 'lv3'
     }
-    return 'lv4'
+    if (badgeCount <= 8) {
+      return 'lv4'
+    }
+    return 'Lv. 1'
   }
 }

@@ -15,8 +15,8 @@ export class BlogService {
 
   // 전체 블로그 조회
   async findBlogsByRoutine(routineId: number) {
-    const todayStart = moment().tz('Asia/Seoul').startOf('day').toDate()
-    const todayEnd = moment().tz('Asia/Seoul').endOf('day').toDate()
+    const todayStart = moment().utc().startOf('day').toDate()
+    const todayEnd = moment().utc().endOf('day').toDate()
 
     const todayBlogs = await this.blogRepository.find({
       where: {
@@ -42,7 +42,7 @@ export class BlogService {
   // 날짜별 블로그 그룹화
   private groupBlogsByDate(blogs: Blog[]): { [key: string]: Blog[] } {
     return blogs.reduce((acc, blog) => {
-      const dateKey = moment(blog.date).tz('Asia/Seoul').format('YYYY-MM-DD')
+      const dateKey = moment(blog.date).utc().format('YYYY-MM-DD')
       if (!acc[dateKey]) {
         acc[dateKey] = []
       }
@@ -53,8 +53,8 @@ export class BlogService {
 
   // 특정 루틴의 오늘의 블로그 조회 및 빈 배열 처리
   async findTodayBlogsByRoutine(routineId: number): Promise<Blog[] | null> {
-    const todayStart = moment().tz('Asia/Seoul').startOf('day').toDate()
-    const todayEnd = moment().tz('Asia/Seoul').endOf('day').toDate()
+    const todayStart = moment().utc().startOf('day').toDate()
+    const todayEnd = moment().utc().endOf('day').toDate()
 
     const todayBlogs = await this.blogRepository.find({
       where: {
@@ -74,7 +74,7 @@ export class BlogService {
     const pageSize = 7
     const skipAmount = (page - 1) * pageSize
 
-    const today = moment().tz('Asia/Seoul').startOf('day').toDate()
+    const today = moment().utc().startOf('day').toDate()
 
     return this.blogRepository.find({
       where: {
@@ -144,7 +144,7 @@ export class BlogService {
     blog.routine = { id: routineId } as any
     blog.title = title
     blog.content = content
-    blog.date = moment().tz('Asia/Seoul').toDate()
+    blog.date = moment().utc().toDate()
     if (image) {
       blog.imagePath = image.path
     }
