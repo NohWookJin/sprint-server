@@ -76,7 +76,7 @@ export class AnalysisService {
 
     const daysAchievedTarget = dailyCounts.filter(count => count >= routine.targetCount).length
     const continuity = this.calculateContinuity(dailyCounts, routine.targetCount)
-    const average = (daysAchievedTarget / Math.min(daysSinceStart + 1, 365)) * 100
+    const average = Math.round((daysAchievedTarget / Math.min(daysSinceStart + 1, 365)) * 100)
 
     return {
       name: routine.name,
@@ -131,6 +131,8 @@ export class AnalysisService {
         dailyCounts = JSON.parse(analysis.dailyCounts)
         const daysSinceStart = moment().utc().startOf('day').diff(moment(routine.date).startOf('day'), 'days')
         dailyCounts = dailyCounts.slice(0, daysSinceStart + 1)
+        dailyCounts.length = 365
+        dailyCounts.fill(0, daysSinceStart + 1)
         analysis.dailyCounts = JSON.stringify(dailyCounts)
         await this.analysisRepository.save(analysis)
       } else {
