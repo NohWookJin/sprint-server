@@ -50,8 +50,8 @@ export class AnalysisService {
 
   private async calculateAnalysisData(routine: Routine, dailyCounts: number[] = null) {
     const logs = routine.routineType === 'blog' ? routine.blogs : routine.todos
-    const startDate = moment(routine.date).utc().startOf('day')
-    const currentDate = moment().utc().startOf('day')
+    const startDate = moment(routine.date).utc().tz('Asia/Seoul').startOf('day')
+    const currentDate = moment().utc().tz('Asia/Seoul').startOf('day')
     const daysSinceStart = currentDate.diff(startDate, 'days')
 
     if (!dailyCounts) {
@@ -62,8 +62,12 @@ export class AnalysisService {
       }
     }
 
+    for (let i = 0; i <= daysSinceStart && i < 365; i++) {
+      dailyCounts[i] = 0
+    }
+
     logs.forEach(log => {
-      const logDate = moment(log.date).utc().startOf('day')
+      const logDate = moment(log.date).utc().tz('Asia/Seoul').startOf('day')
       const dayIndex = logDate.diff(startDate, 'days')
       if (dayIndex >= 0 && dayIndex < 365) {
         if (routine.routineType === 'todo' && log.completed) {
@@ -124,30 +128,33 @@ export class AnalysisService {
   private async updateAllRoutines() {
     const routines = await this.routineRepository.find({ relations: ['todos', 'blogs'] })
     for (const routine of routines) {
-      const analysis = await this.analysisRepository.findOne({ where: { routine: { id: routine.id } } })
       let dailyCounts = new Array(365).fill(0)
+      const existingAnalysis = await this.analysisRepository.findOne({ where: { routine: { id: routine.id } } })
 
-      if (analysis) {
-        dailyCounts = JSON.parse(analysis.dailyCounts)
-        const daysSinceStart = moment().utc().startOf('day').diff(moment(routine.date).startOf('day'), 'days')
+      if (existingAnalysis) {
+        dailyCounts = JSON.parse(existingAnalysis.dailyCounts)
+        const daysSinceStart = moment()
+          .utc()
+          .tz('Asia/Seoul')
+          .startOf('day')
+          .diff(moment(routine.date).utc().tz('Asia/Seoul').startOf('day'), 'days')
         dailyCounts = dailyCounts.slice(0, daysSinceStart + 1)
         dailyCounts.length = 365
         dailyCounts.fill(0, daysSinceStart + 1)
-        analysis.dailyCounts = JSON.stringify(dailyCounts)
-        await this.analysisRepository.save(analysis)
+        existingAnalysis.dailyCounts = JSON.stringify(dailyCounts)
+        await this.analysisRepository.save(existingAnalysis)
       } else {
         const analysisData = {
           routine: { id: routine.id },
           continuity: 0,
           average: 0,
           dailyCounts: JSON.stringify(dailyCounts),
-          startWith: moment(routine.date).utc().startOf('day').toDate()
+          startWith: moment(routine.date).utc().tz('Asia/Seoul').startOf('day').toDate()
         }
         await this.analysisRepository.save(analysisData)
       }
 
       const analysisData = await this.calculateAnalysisData(routine, dailyCounts)
-      const existingAnalysis = await this.analysisRepository.findOne({ where: { routine: { id: routine.id } } })
       if (existingAnalysis) {
         existingAnalysis.continuity = analysisData.continuity
         existingAnalysis.average = analysisData.average
