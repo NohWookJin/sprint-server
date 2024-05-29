@@ -95,10 +95,13 @@ export class TodoService {
   // 날짜별 투두 그룹화
   private groupTodosByDate(todos: Todo[]): { [key: string]: Todo[] } {
     return todos.reduce((acc, todo) => {
-      const dateKey = moment(todo.date).format('YYYY-MM-DD')
+      const adjustedDate = moment(todo.date).add(9, 'hours')
+      const dateKey = adjustedDate.format('YYYY-MM-DD')
+
       if (!acc[dateKey]) {
         acc[dateKey] = []
       }
+
       acc[dateKey].push(todo)
       return acc
     }, {})

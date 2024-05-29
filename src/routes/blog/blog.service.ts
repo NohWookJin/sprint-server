@@ -42,10 +42,13 @@ export class BlogService {
   // 날짜별 블로그 그룹화
   private groupBlogsByDate(blogs: Blog[]): { [key: string]: Blog[] } {
     return blogs.reduce((acc, blog) => {
-      const dateKey = moment(blog.date).tz('Asia/Seoul').utc().format('YYYY-MM-DD')
+      const adjustedDate = moment(blog.date).add(9, 'hours')
+      const dateKey = adjustedDate.format('YYYY-MM-DD')
+
       if (!acc[dateKey]) {
         acc[dateKey] = []
       }
+
       acc[dateKey].push(blog)
       return acc
     }, {})
