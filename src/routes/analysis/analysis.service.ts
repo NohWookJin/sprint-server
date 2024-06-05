@@ -117,7 +117,7 @@ export class AnalysisService {
     const today = moment().utc().tz('Asia/Seoul').startOf('day')
     const daysSinceStart = today.diff(start, 'days')
 
-    for (let i = 0; i <= daysSinceStart; i++) {
+    for (let i = 0; i <= daysSinceStart - 1; i++) {
       if (dailyCounts[i] >= targetCount) {
         continuity++
       } else {
