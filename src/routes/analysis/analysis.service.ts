@@ -5,6 +5,7 @@ import { Routine } from 'src/entity/routine.entity'
 import { Analysis } from 'src/entity/analysis.entity'
 import * as moment from 'moment'
 import * as cron from 'node-cron'
+import { Moment } from 'moment-timezone'
 
 @Injectable()
 export class AnalysisService {
@@ -79,7 +80,7 @@ export class AnalysisService {
     })
 
     const daysAchievedTarget = dailyCounts.filter(count => count >= routine.targetCount).length
-    const continuity = this.calculateContinuity(dailyCounts, routine.targetCount)
+    const continuity = this.calculateContinuity(dailyCounts, routine.targetCount, startDate)
     const average = Math.round((daysAchievedTarget / Math.min(daysSinceStart + 1, 365)) * 100)
 
     return {
@@ -110,18 +111,20 @@ export class AnalysisService {
     }
   }
 
-  private calculateContinuity(dailyCounts: number[], targetCount: number) {
+  private calculateContinuity(dailyCounts: number[], targetCount: number, startDate: Moment) {
     let continuity = 0
-    let currentStreak = 0
-    for (const count of dailyCounts) {
-      if (count >= targetCount) {
-        currentStreak++
+    const start = moment(startDate).utc().tz('Asia/Seoul').startOf('day')
+    const today = moment().utc().tz('Asia/Seoul').startOf('day')
+    const daysSinceStart = today.diff(start, 'days')
+
+    for (let i = 0; i <= daysSinceStart; i++) {
+      if (dailyCounts[i] >= targetCount) {
+        continuity++
       } else {
-        continuity = Math.max(continuity, currentStreak)
-        currentStreak = 0
+        continuity = 0
       }
     }
-    continuity = Math.max(continuity, currentStreak)
+
     return continuity
   }
 
