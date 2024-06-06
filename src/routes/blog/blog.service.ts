@@ -125,6 +125,8 @@ export class BlogService {
 
     const imageUrl = await this.fileService.imageUploadToS3(`${imageName}.${ext}`, file, ext)
 
+    console.log(imageUrl)
+
     return { imageUrl }
   }
 

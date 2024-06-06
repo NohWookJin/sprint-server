@@ -42,8 +42,8 @@ export class BlogController {
     return this.blogService.findBlogById(blogId)
   }
 
-  @Post('image')
-  @UseInterceptors(FileInterceptor('image'))
+  @Post('file')
+  @UseInterceptors(FileInterceptor('file'))
   async saveImage(@UploadedFile() file: Express.Multer.File) {
     return await this.blogService.imageUpload(file)
   }
