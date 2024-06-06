@@ -7,11 +7,20 @@ export class FileService {
   s3Client: S3Client
 
   constructor(private configService: ConfigService) {
+    const region = this.configService.get('AWS_REGION')
+    const accessKeyId = this.configService.get('AWS_S3_ACCESS_KEY')
+    const secretAccessKey = this.configService.get('AWS_S3_SECRET_ACCESS_KEY')
+
+    // 환경 변수 출력 확인
+    console.log('AWS_REGION:', region)
+    console.log('AWS_S3_ACCESS_KEY:', accessKeyId)
+    console.log('AWS_S3_SECRET_ACCESS_KEY:', secretAccessKey)
+
     this.s3Client = new S3Client({
-      region: this.configService.get('AWS_REGION'),
+      region,
       credentials: {
-        accessKeyId: this.configService.get('AWS_S3_ACCESS_KEY'),
-        secretAccessKey: this.configService.get('AWS_S3_SECRET_ACCESS_KEY')
+        accessKeyId,
+        secretAccessKey
       }
     })
   }
