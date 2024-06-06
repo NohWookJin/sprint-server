@@ -9,7 +9,7 @@ export class FileService {
   s3Client: S3Client
 
   constructor() {
-    const region = process.env.AWS_REGION
+    const region = 'ap-northeast-2'
     const accessKeyId = process.env.AWS_S3_ACCESS_KEY
     const secretAccessKey = process.env.AWS_S3_SECRET_ACCESS_KEY
 
