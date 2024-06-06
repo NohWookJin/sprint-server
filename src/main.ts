@@ -5,6 +5,9 @@ import { TodoService } from './routes/todo/todo.service'
 import { BlogService } from './routes/blog/blog.service'
 import * as cron from 'node-cron'
 import * as bodyParser from 'body-parser'
+import { config } from 'dotenv'
+
+config({ path: `.env.${process.env.NODE_ENV}` })
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
