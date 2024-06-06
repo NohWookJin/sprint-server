@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common'
-import { ConfigModule } from '@nestjs/config'
+import ConfigModule from '../../config/index'
 import { FileService } from './file.service'
 
 @Module({
-  imports: [ConfigModule],
+  imports: [ConfigModule()],
   providers: [FileService],
   exports: [FileService]
 })
