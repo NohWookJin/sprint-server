@@ -13,6 +13,8 @@ import {
 } from '@nestjs/common'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { BlogService } from './blog.service'
+import { CreateBlogDto } from './dto/create-blog.dto'
+import { UpdateBlogDto } from './dto/update-blog.dto'
 
 @Controller('routines/:routineId/blogs')
 export class BlogController {
@@ -40,27 +42,34 @@ export class BlogController {
     return this.blogService.findBlogById(blogId)
   }
 
+  @Post('image')
+  @UseInterceptors(FileInterceptor('image'))
+  async saveImage(@UploadedFile() file: Express.Multer.File) {
+    return await this.blogService.imageUpload(file)
+  }
+
   @Post()
   @UseInterceptors(FileInterceptor('image'))
-  createBlog(
+  async createBlog(
     @Param('routineId', ParseIntPipe) routineId: number,
-    @Body('title') title: string,
-    @Body('content') content: string,
-    @UploadedFile() image: Express.Multer.File
+    @Body() createBlogDto: CreateBlogDto,
+    @UploadedFile() imageFile: Express.Multer.File
   ) {
-    return this.blogService.createBlog(routineId, title, content, image)
+    const { title, content } = createBlogDto
+
+    return this.blogService.createBlog(routineId, title, content, imageFile)
   }
 
   @Patch('/:blogId')
   @UseInterceptors(FileInterceptor('image'))
-  updateBlog(
+  async updateBlog(
     @Param('routineId', ParseIntPipe) routineId: number,
     @Param('blogId', ParseIntPipe) blogId: number,
-    @Body('title') title: string,
-    @Body('content') content: string,
-    @UploadedFile() image: Express.Multer.File
+    @Body() updateBlogDto: UpdateBlogDto,
+    @UploadedFile() imageFile: Express.Multer.File
   ) {
-    return this.blogService.updateBlog(blogId, title, content, image)
+    const { title, content } = updateBlogDto
+    return this.blogService.updateBlog(blogId, title, content, imageFile)
   }
 
   @Delete('/:blogId')

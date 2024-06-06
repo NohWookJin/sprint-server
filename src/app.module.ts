@@ -10,7 +10,8 @@ import { RoutineModule } from './routes/routine/routine.module'
 import { TodoModule } from './routes/todo/todo.module'
 import { BlogModule } from './routes/blog/blog.module'
 import { AnalysisModule } from './routes/analysis/analysis.module'
-
+import { FileModule } from './routes/file/file.module'
+import { UtilModule } from './util/util.module'
 @Module({
   imports: [
     ConfigModule(),
@@ -30,7 +31,9 @@ import { AnalysisModule } from './routes/analysis/analysis.module'
     RoutineModule,
     TodoModule,
     BlogModule,
-    AnalysisModule
+    AnalysisModule,
+    FileModule,
+    UtilModule
   ],
   controllers: [AppController],
   providers: [AppService]

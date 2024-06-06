@@ -3,14 +3,16 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Repository, Between, LessThan } from 'typeorm'
 import { Blog } from 'src/entity/blog.entity'
 import * as moment from 'moment-timezone'
-import * as multer from 'multer'
-import { Request, Response, NextFunction } from 'express'
+import { FileService } from '../file/file.service'
+import { UtilService } from 'src/util/util.service'
 
 @Injectable()
 export class BlogService {
   constructor(
     @InjectRepository(Blog)
-    private blogRepository: Repository<Blog>
+    private blogRepository: Repository<Blog>,
+    private readonly fileService: FileService,
+    private readonly utilService: UtilService
   ) {}
 
   // 전체 블로그 조회
@@ -113,59 +115,61 @@ export class BlogService {
     }
   }
 
-  private storage = multer.diskStorage({
-    destination: (req: Request, file, cb: (error: Error | null, destination: string) => void) => {
-      cb(null, 'uploads/')
-    },
-    filename: (req: Request, file, cb: (error: Error | null, filename: string) => void) => {
-      const filename = `${Date.now()}-${file.originalname}`
-      cb(null, filename)
-    }
-  })
+  async saveImage(file: Express.Multer.File) {
+    return await this.imageUpload(file)
+  }
 
-  private upload = multer({
-    storage: this.storage,
-    limits: {
-      fieldSize: 8 * 1024 * 1024
-    }
-  })
+  async imageUpload(file: Express.Multer.File) {
+    const imageName = this.utilService.getUUID()
+    const ext = file.originalname.split('.').pop()
 
-  async uploadImage(req: Request, res: Response, next: NextFunction) {
-    this.upload.single('image')(req, res, (err: any) => {
-      if (err instanceof multer.MulterError) {
-        return res.status(400).json({ message: 'Multer error' })
-      } else if (err) {
-        return res.status(500).json({ message: 'Internal server error' })
-      }
-      next()
-    })
+    const imageUrl = await this.fileService.imageUploadToS3(`${imageName}.${ext}`, file, ext)
+
+    return { imageUrl }
   }
 
   // 블로그 생성
-  async createBlog(routineId: number, title: string, content: string, image?: Express.Multer.File) {
+  async createBlog(routineId: number, title: string, content: string, imageFile?: Express.Multer.File) {
+    let imageUrl: string | undefined
+    if (imageFile) {
+      const { imageUrl: uploadedImageUrl } = await this.imageUpload(imageFile)
+      imageUrl = uploadedImageUrl
+    }
+
     const blog = new Blog()
+
     blog.routine = { id: routineId } as any
     blog.title = title
     blog.content = content
     blog.date = moment().tz('Asia/Seoul').utc().toDate()
-    if (image) {
-      blog.imagePath = image.path
+
+    if (imageUrl) {
+      blog.imagePath = imageUrl
     }
     return await this.blogRepository.save(blog)
   }
 
   // 블로그 업데이트(수정)
-  async updateBlog(blogId: number, title: string, content: string, image?: Express.Multer.File): Promise<Blog> {
+  async updateBlog(blogId: number, title: string, content: string, imageFile?: Express.Multer.File): Promise<Blog> {
     const blog = await this.blogRepository.findOneBy({ id: blogId })
+
     if (!blog) {
       throw new NotFoundException()
     }
 
+    let imageUrl: string | undefined
+    if (imageFile) {
+      const { imageUrl: uploadedImageUrl } = await this.imageUpload(imageFile)
+      imageUrl = uploadedImageUrl
+    }
+
     blog.title = title
     blog.content = content
-    if (image) {
-      blog.imagePath = image.path
+
+    if (imageUrl) {
+      blog.imagePath = imageUrl
     }
+
     return await this.blogRepository.save(blog)
   }
 
