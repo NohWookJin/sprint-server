@@ -23,10 +23,6 @@ export class FileService {
   async imageUploadToS3(fileName: string, file: Express.Multer.File, ext: string) {
     const bucketName = this.configService.get<string>('AWS_S3_BUCKET_NAME')
 
-    if (!bucketName) {
-      throw new Error('BuckName is not defined...')
-    }
-
     const command = new PutObjectCommand({
       Bucket: bucketName,
       Key: fileName,

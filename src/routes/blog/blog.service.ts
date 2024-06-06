@@ -125,19 +125,11 @@ export class BlogService {
 
     const imageUrl = await this.fileService.imageUploadToS3(`${imageName}.${ext}`, file, ext)
 
-    console.log(imageUrl)
-
     return { imageUrl }
   }
 
   // 블로그 생성
-  async createBlog(routineId: number, title: string, content: string, imageFile?: Express.Multer.File) {
-    let imageUrl: string | undefined
-    if (imageFile) {
-      const { imageUrl: uploadedImageUrl } = await this.imageUpload(imageFile)
-      imageUrl = uploadedImageUrl
-    }
-
+  async createBlog(routineId: number, title: string, content: string, imagePath?: string) {
     const blog = new Blog()
 
     blog.routine = { id: routineId } as any
@@ -145,31 +137,26 @@ export class BlogService {
     blog.content = content
     blog.date = moment().tz('Asia/Seoul').utc().toDate()
 
-    if (imageUrl) {
-      blog.imagePath = imageUrl
+    if (imagePath) {
+      blog.imagePath = imagePath
     }
+
     return await this.blogRepository.save(blog)
   }
 
   // 블로그 업데이트(수정)
-  async updateBlog(blogId: number, title: string, content: string, imageFile?: Express.Multer.File): Promise<Blog> {
+  async updateBlog(blogId: number, title: string, content: string, imagePath?: string) {
     const blog = await this.blogRepository.findOneBy({ id: blogId })
 
     if (!blog) {
       throw new NotFoundException()
     }
 
-    let imageUrl: string | undefined
-    if (imageFile) {
-      const { imageUrl: uploadedImageUrl } = await this.imageUpload(imageFile)
-      imageUrl = uploadedImageUrl
-    }
-
     blog.title = title
     blog.content = content
 
-    if (imageUrl) {
-      blog.imagePath = imageUrl
+    if (imagePath) {
+      blog.imagePath = imagePath
     }
 
     return await this.blogRepository.save(blog)

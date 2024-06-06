@@ -1,4 +1,4 @@
-import { IsNotEmpty } from 'class-validator'
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator'
 
 export class UpdateBlogDto {
   @IsNotEmpty()
@@ -6,4 +6,8 @@ export class UpdateBlogDto {
 
   @IsNotEmpty()
   content: string
+
+  @IsOptional()
+  @IsString()
+  imagePath?: string
 }

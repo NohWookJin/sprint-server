@@ -49,27 +49,16 @@ export class BlogController {
   }
 
   @Post()
-  @UseInterceptors(FileInterceptor('image'))
-  async createBlog(
-    @Param('routineId', ParseIntPipe) routineId: number,
-    @Body() createBlogDto: CreateBlogDto,
-    @UploadedFile() imageFile: Express.Multer.File
-  ) {
-    const { title, content } = createBlogDto
+  async createBlog(@Param('routineId', ParseIntPipe) routineId: number, @Body() createBlogDto: CreateBlogDto) {
+    const { title, content, imagePath } = createBlogDto
 
-    return this.blogService.createBlog(routineId, title, content, imageFile)
+    return this.blogService.createBlog(routineId, title, content, imagePath)
   }
 
   @Patch('/:blogId')
-  @UseInterceptors(FileInterceptor('image'))
-  async updateBlog(
-    @Param('routineId', ParseIntPipe) routineId: number,
-    @Param('blogId', ParseIntPipe) blogId: number,
-    @Body() updateBlogDto: UpdateBlogDto,
-    @UploadedFile() imageFile: Express.Multer.File
-  ) {
-    const { title, content } = updateBlogDto
-    return this.blogService.updateBlog(blogId, title, content, imageFile)
+  async updateBlog(@Param('blogId', ParseIntPipe) blogId: number, @Body() updateBlogDto: UpdateBlogDto) {
+    const { title, content, imagePath } = updateBlogDto
+    return this.blogService.updateBlog(blogId, title, content, imagePath)
   }
 
   @Delete('/:blogId')
